@@ -1,0 +1,99 @@
+---
+title: "Master_Clean"
+author: "Daniel Schmidle / Ivan Wolansky"
+date: "February 16, 2020"
+output: html_document
+---
+
+
+**Clean Data 1**
+
+
+```{r}
+fire.raw <- read.csv("C:/Users/daniel/Desktop/Fire_Incident_Dispatch_Data.csv", as.is=TRUE)
+```
+
+```{r}
+#Remove useless rows 
+drop <- c("STARFIRE_INCIDENT_ID","COMMUNITYDISTRICT","COMMUNITYSCHOOLDISTRICT","HIGHEST_ALARM_LEVEL","INCIDENT_CLASSIFICATION","FIRST_ASSIGNMENT_DATETIME","FIRST_ACTIVATION_DATETIME","FIRST_ON_SCENE_DATETIME","INCIDENT_CLOSE_DATETIME")
+
+fire <- fire.raw[,!(names(fire.raw) %in% drop)]
+```
+
+
+```{r}
+library(chron)
+
+#split date and time into columns
+len <- nrow(fire)
+MONTH <- integer(length = len)
+DAY <- integer(length = len)
+YEAR <- integer(length = len)
+TIME <- character(length = len)
+
+incident_date <- fire$INCIDENT_DATETIME
+
+for(i in 1:len){
+  datetime <- unlist(strsplit(incident_date[i], " "))
+  date <- datetime[1]
+  timeof <- datetime[2]
+  date.split <-  unlist(strsplit(date,"/"))
+  MONTH[i] <- as.integer(date.split[1])
+  DAY[i] <- as.integer(date.split[2])
+  YEAR[i] <- as.integer(date.split[3])
+  TIME[i] <- as.character(timeof)
+}
+#change character to time object 
+TIME <- chron(times=TIME)
+
+fire <- cbind(MONTH,DAY,YEAR,TIME,fire)
+
+drop <- "INCIDENT_DATETIME"
+fire <- fire[,!(names(fire) %in% drop)]
+
+```
+
+```{r}
+head(fire)
+```
+
+
+```{r}
+#contains all data cleaned (no long or lats)
+clean_fire1 <- fire
+save(clean_fire1,file="../output/clean_fire1.RData")
+```
+
+
+
+
+**Clean Data 2**
+
+
+```{r}
+# creates a list of addresses that includes the streets, borough, state, and zipcode
+addresses <- paste(fire$ALARM_BOX_LOCATION, ", ", fire$INCIDENT_BOROUGH, sep="", ", NY ", fire$ZIPCODE)
+
+# replaces & with AND because it makes geocoding more efficient
+addresses <- gsub("&", "AND", addresses)
+
+# removes any ' from address (no apostrophes in addresses)
+addresses <- gsub("'", "", addresses)
+
+# adds column of full address to dataframe
+fire$FULL_ADDRESS <- addresses
+
+```
+
+```{r}
+load(file="../output/Fire_UNIQUE_Lat_Long.RData")
+
+fire <- merge(fire, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
+
+clean_fire2 <- fire
+
+#contains cleaned data with full address, longs and lats
+save(clean_fire2, file="../output/clean_fire2.RData")
+
+```
+
