@@ -10,31 +10,54 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+# used for geomapping
 library(ggmap)
 devtools::install_github("dkahle/ggmap")
 ```
 
 ```{r}
+#### converts csv to RData for speed
+
 #raw_df <- read.csv("C:/Users/iawol/Desktop/College/Senior/2nd Semester/Applied Data Science/Project 2/data/Fire_Incident_Dispatch_Data.csv", stringsAsFactors = FALSE)
 #save(raw_df, file="../output/Fire_Incident_Dispatch_Data.RData")
+
+
 load(file="../output/Fire_Incident_Dispatch_Data.RData")
-#head(raw_df)
-#nrow(raw_df)
+head(raw_df)
+nrow(raw_df)
 ```
 
 ```{r}
-api_key <- readLines("C:/Users/iawol/Desktop/College/Senior/2nd Semester/Applied Data Science/Project 2/doc/api_key.txt", n=1)
-register_google(key = api_key)
+#### used for the geomapping 
+#api_key <- readLines("C:/Users/iawol/Desktop/College/Senior/2nd Semester/Applied Data Science/Project 2/doc/api_key.txt", n=1)
+#register_google(key = api_key)
 ```
 
 ```{r}
+#### This code chunk is used to create the file that I called: Fire_Incident_Dispatch_Data_Processing.RData
+
+# creates a list of addresses that includes the streets, borough, state, and zipcode
 addresses <- paste(raw_df$ALARM_BOX_LOCATION, ", ", raw_df$INCIDENT_BOROUGH, sep="", ", NY ", raw_df$ZIPCODE)
+
+# replaces & with AND because it makes geocoding more efficient
 addresses <- gsub("&", "AND", addresses)
+
+# removes any ' from address (no apostrophes in addresses)
 addresses <- gsub("'", "", addresses)
+
+# creates a dataframe of the addresses
 temp_df <- data.frame(addresses)
-raw_df <- cbind(raw_df, temp_df)
+
+# adds the dataframe to the end of the main dataframe
+raw_df <- cbind
+
+# converts addresses into character type
 raw_df$addresses <- sapply(raw_df$addresses, as.character)
+
+# renames the address column
 colnames(raw_df)[30] <- "FULL_ADDRESS"
+
+# makes a new dataframe for saving
 processing_df <- raw_df
 #save(processing_df, file="../output/Fire_Incident_Dispatch_Data_Processing.RData")
 ```
@@ -44,24 +67,29 @@ load(file="../output/Fire_Incident_Dispatch_Data_Processing.RData")
 ```
 
 ```{r}
+#### code chunk used in order to populate the file that you can load that is called Fire_UNIQUE_Lat_Long.RData
+
+# selects all unique addresses
 unique_addresses <- unique(processing_df$FULL_ADDRESS)
 
+# creates a dataframe with all unique addresses and 0s as latitude and longitude values
 unique_coordinates_df <- data.frame(unique_addresses, 0, 0, stringsAsFactors = FALSE)
+
+# renames columns
 colnames(unique_coordinates_df) <- c("FULL_ADDRESS", "LATITUDE", "LONGITUDE")
 
+# cycles through each unique address and finds the latitutde and longitude and updates the dataframe
 for (i in 1:nrow(unique_coordinates_df)) {
   coord <- geocode(unique_coordinates_df$FULL_ADDRESS[i], output = "latlona", source = "google")
   unique_coordinates_df$LATITUDE[i] <- as.numeric(coord[2])
   unique_coordinates_df$LONGITUDE[i] <- as.numeric(coord[1])
-  print(i)
 }
+#save(unique_coordinates_df, file="../output/Fire_UNIQUE_Lat_Long.RData")
 
+# maps each row in the datafrane to each unique address's latitude and longitude
 raw_lat_long_df <- merge(processing_df, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
-raw_lat_long_df <- transform(raw_lat_long_df, LATITUDE = ifelse(is.na(LATITUDE.y), 
-                              LATITUDE.x, as.numeric(LATITUDE.y)))
-raw_lat_long_df <- transform(raw_lat_long_df, LONGITUDE = ifelse(is.na(LONGITUDE.y), 
-                              LONGITUDE.x, as.numeric(LONGITUDE.y)))
-raw_lat_long_df <- raw_lat_long_df[-(31:34)]
+
+# makes latitude and longitude into numeric columns
 raw_lat_long_df$LATITUDE <- sapply(raw_lat_long_df$LATITUDE, as.numeric)
 raw_lat_long_df$LONGITUDE <- sapply(raw_lat_long_df$LONGITUDE, as.numeric)
 
@@ -69,20 +97,25 @@ raw_lat_long_df$LONGITUDE <- sapply(raw_lat_long_df$LONGITUDE, as.numeric)
 
 head(raw_lat_long_df)
 
+# all addresses and their latitude and longitude
 lats_and_longs <- raw_lat_long_df[, (names(raw_lat_long_df) %in% c("FULL_ADDRESS", "LATITUDE", "LONGITUDE"))]
 
 #save(lats_and_longs, file="../output/Fire_Lat_Long.RData")
-#save(unique_coordinates_df, file="../output/Fire_UNIQUE_Lat_Long.RData")
+
 ```
 
 ```{r}
+# you can create this file with the 5th code chunk (too big for github)
 load(file="../output/Fire_Incident_Dispatch_Data_Processing.RData")
+
 load(file="../output/Fire_Lat_Long.RData")
 load(file="../output/Fire_UNIQUE_Lat_Long.RData")
-library(dplyr)
 ```
 
 ```{r}
-all_df <- merge(processing_df, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
-all_df
+#### use this in order to not need to run all of the geocoding logic above
+
+# maps each row in the datafrane to each unique address's latitude and longitude
+raw_lat_long_df <- merge(processing_df, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
+save(raw_lat_long_df, file="../output/Fire_Incident_Dispatch_Data_LatLong_Processed.RData")
 ```
