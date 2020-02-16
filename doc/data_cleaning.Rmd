@@ -1,0 +1,88 @@
+---
+title: "Project 2 Cleaning"
+author: "Ivan Wolansky"
+date: "2/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggmap)
+devtools::install_github("dkahle/ggmap")
+```
+
+```{r}
+#raw_df <- read.csv("C:/Users/iawol/Desktop/College/Senior/2nd Semester/Applied Data Science/Project 2/data/Fire_Incident_Dispatch_Data.csv", stringsAsFactors = FALSE)
+#save(raw_df, file="../output/Fire_Incident_Dispatch_Data.RData")
+load(file="../output/Fire_Incident_Dispatch_Data.RData")
+#head(raw_df)
+#nrow(raw_df)
+```
+
+```{r}
+api_key <- readLines("C:/Users/iawol/Desktop/College/Senior/2nd Semester/Applied Data Science/Project 2/doc/api_key.txt", n=1)
+register_google(key = api_key)
+```
+
+```{r}
+addresses <- paste(raw_df$ALARM_BOX_LOCATION, ", ", raw_df$INCIDENT_BOROUGH, sep="", ", NY ", raw_df$ZIPCODE)
+addresses <- gsub("&", "AND", addresses)
+addresses <- gsub("'", "", addresses)
+temp_df <- data.frame(addresses)
+raw_df <- cbind(raw_df, temp_df)
+raw_df$addresses <- sapply(raw_df$addresses, as.character)
+colnames(raw_df)[30] <- "FULL_ADDRESS"
+processing_df <- raw_df
+#save(processing_df, file="../output/Fire_Incident_Dispatch_Data_Processing.RData")
+```
+
+```{r}
+load(file="../output/Fire_Incident_Dispatch_Data_Processing.RData")
+```
+
+```{r}
+unique_addresses <- unique(processing_df$FULL_ADDRESS)
+
+unique_coordinates_df <- data.frame(unique_addresses, 0, 0, stringsAsFactors = FALSE)
+colnames(unique_coordinates_df) <- c("FULL_ADDRESS", "LATITUDE", "LONGITUDE")
+
+for (i in 1:nrow(unique_coordinates_df)) {
+  coord <- geocode(unique_coordinates_df$FULL_ADDRESS[i], output = "latlona", source = "google")
+  unique_coordinates_df$LATITUDE[i] <- as.numeric(coord[2])
+  unique_coordinates_df$LONGITUDE[i] <- as.numeric(coord[1])
+  print(i)
+}
+
+raw_lat_long_df <- merge(processing_df, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
+raw_lat_long_df <- transform(raw_lat_long_df, LATITUDE = ifelse(is.na(LATITUDE.y), 
+                              LATITUDE.x, as.numeric(LATITUDE.y)))
+raw_lat_long_df <- transform(raw_lat_long_df, LONGITUDE = ifelse(is.na(LONGITUDE.y), 
+                              LONGITUDE.x, as.numeric(LONGITUDE.y)))
+raw_lat_long_df <- raw_lat_long_df[-(31:34)]
+raw_lat_long_df$LATITUDE <- sapply(raw_lat_long_df$LATITUDE, as.numeric)
+raw_lat_long_df$LONGITUDE <- sapply(raw_lat_long_df$LONGITUDE, as.numeric)
+
+#save(raw_lat_long_df, file="../output/Fire_Incident_Dispatch_Data_LatLong_Processed.RData")
+
+head(raw_lat_long_df)
+
+lats_and_longs <- raw_lat_long_df[, (names(raw_lat_long_df) %in% c("FULL_ADDRESS", "LATITUDE", "LONGITUDE"))]
+
+#save(lats_and_longs, file="../output/Fire_Lat_Long.RData")
+#save(unique_coordinates_df, file="../output/Fire_UNIQUE_Lat_Long.RData")
+```
+
+```{r}
+load(file="../output/Fire_Incident_Dispatch_Data_Processing.RData")
+load(file="../output/Fire_Lat_Long.RData")
+load(file="../output/Fire_UNIQUE_Lat_Long.RData")
+library(dplyr)
+```
+
+```{r}
+all_df <- merge(processing_df, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
+all_df
+```
