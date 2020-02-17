@@ -66,7 +66,6 @@ save(clean_fire1,file="../output/clean_fire1.RData")
 
 
 
-
 **Clean Data 2**
 
 
@@ -92,8 +91,10 @@ fire <- merge(fire, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, al
 
 clean_fire2 <- fire
 
+# removes any rows where latitude or longitude are 0
+clean_fire2 <- clean_fire2[!(clean_fire2$LATITUDE == 0 | clean_fire2$LONGITUDE == 0),]
+
 #contains cleaned data with full address, longs and lats
 save(clean_fire2, file="../output/clean_fire2.RData")
 
 ```
-
