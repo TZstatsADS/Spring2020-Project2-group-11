@@ -5,6 +5,11 @@ date: "February 16, 2020"
 output: html_document
 ---
 
+```{r}
+library(chron)
+library(ggmap)
+devtools::install_github("dkahle/ggmap")
+```
 
 **Clean Data 1**
 
@@ -22,7 +27,6 @@ fire <- fire.raw[,!(names(fire.raw) %in% drop)]
 
 
 ```{r}
-library(chron)
 
 #split date and time into columns
 len <- nrow(fire)
@@ -85,6 +89,36 @@ fire$FULL_ADDRESS <- addresses
 ```
 
 ```{r}
+#### used for the geomapping 
+api_key <- readLines("../doc/api_key.txt", n=1)
+register_google(key = api_key)
+```
+
+```{r}
+#### code chunk used in order to populate the file that you can load that is called Fire_UNIQUE_Lat_Long.RData
+#### only use if you have an api_key to do this with
+
+# selects all unique addresses
+unique_addresses <- unique(fire$FULL_ADDRESS)
+
+# creates a dataframe with all unique addresses and 0s as latitude and longitude values
+unique_coordinates_df <- data.frame(unique_addresses, 0, 0, stringsAsFactors = FALSE)
+
+# renames columns
+colnames(unique_coordinates_df) <- c("FULL_ADDRESS", "LATITUDE", "LONGITUDE")
+
+# cycles through each unique address and finds the latitutde and longitude and updates the dataframe
+for (i in 1:nrow(unique_coordinates_df)) {
+  coord <- geocode(unique_coordinates_df$FULL_ADDRESS[i], output = "latlona", source = "google")
+  unique_coordinates_df$LATITUDE[i] <- as.numeric(coord[2])
+  unique_coordinates_df$LONGITUDE[i] <- as.numeric(coord[1])
+}
+
+save(unique_coordinates_df, file="../output/Fire_UNIQUE_Lat_Long.RData")
+```
+
+
+```{r}
 load(file="../output/Fire_UNIQUE_Lat_Long.RData")
 
 fire <- merge(fire, unique_coordinates_df, by = "FULL_ADDRESS", all.x = TRUE, all.y = TRUE)
@@ -96,5 +130,30 @@ clean_fire2 <- clean_fire2[!(clean_fire2$LATITUDE == 0 | clean_fire2$LONGITUDE =
 
 #contains cleaned data with full address, longs and lats
 save(clean_fire2, file="../output/clean_fire2.RData")
+```
 
+
+**Aggregation of the Number of Incidents by Incident Group at Each Location**
+
+
+```{r}
+# limits found from https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/nybb_metadata.pdf?ver=19d
+westlimit <- -74.257159
+southlimit <- 40.495992
+eastlimit <- -73.699215
+northlimit <- 40.915568
+
+# removing any rows that aren't in New York City or the surrounding area
+clean_fire2 <- clean_fire2[!((clean_fire2$LATITUDE < southlimit) | (clean_fire2$LATITUDE > northlimit) | (clean_fire2$LONGITUDE < westlimit) | (clean_fire2$LONGITUDE > eastlimit)),]
+```
+
+```{r}
+# aggregating by latitude, longitude, and classification group and counting the number in each group
+count_by_lat_long_incident <- aggregate(FULL_ADDRESS ~LATITUDE+LONGITUDE+INCIDENT_CLASSIFICATION_GROUP, data=clean_fire2, length)
+
+# renaming FULL_ADDRESS column to count (could have chosen any column instead of FULL_ADDRESS above, just chose that one arbitrarily)
+colnames(count_by_lat_long_incident)[4] <- "COUNT"
+
+# contains the count data for each group at each location
+save(count_by_lat_long_incident, file="../output/incident_count_aggregate.RData")
 ```
