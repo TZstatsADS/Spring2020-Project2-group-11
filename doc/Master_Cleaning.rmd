@@ -157,3 +157,23 @@ colnames(count_by_lat_long_incident)[4] <- "COUNT"
 # contains the count data for each group at each location
 save(count_by_lat_long_incident, file="../output/incident_count_aggregate.RData")
 ```
+
+
+**Firehouse Data**
+
+```{r}
+# read in data
+firehouses <- read.csv("../data/FDNY_Firehouse_Listing.csv", stringsAsFactors = FALSE)
+
+# save columns to keep
+keep <- c("FacilityName", "Latitude", "Longitude")
+
+# remove non-saved columns
+firehouses <- firehouses[colnames(firehouses) %in% keep]
+
+# remove rows with NA
+firehouses <- firehouses[complete.cases(firehouses),]
+
+# contains the name of each firehouse and its latitude and longitude
+save(firehouses, file="../output/firehouse_locations.RData")
+```

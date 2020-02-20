@@ -23,7 +23,12 @@ shinyUI(fluidPage(
                         selected = c("Medical Emergencies","Medical MFAs","NonMedical Emergencies", 
                                      "NonMedical MFAs", "Structural Fires", "NonStructural Fires")),
                     actionButton("click_all_incident_types", "Select ALL"),
-                    actionButton("click_no_incident_types", "Select NONE")
+                    actionButton("click_no_incident_types", "Select NONE"), 
+                    
+                    br(), br(),
+                    checkboxGroupInput("show_firehouses", "Show Firehouses: ",
+                                       choices = "",
+                                       selected = "")
                               )
                       )
                   )
