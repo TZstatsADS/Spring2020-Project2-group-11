@@ -23,6 +23,7 @@ fire.raw <- read.csv("C:/Users/daniel/Desktop/Fire_Incident_Dispatch_Data.csv", 
 drop <- c("STARFIRE_INCIDENT_ID","COMMUNITYDISTRICT","COMMUNITYSCHOOLDISTRICT","HIGHEST_ALARM_LEVEL","INCIDENT_CLASSIFICATION","FIRST_ASSIGNMENT_DATETIME","FIRST_ACTIVATION_DATETIME","FIRST_ON_SCENE_DATETIME","INCIDENT_CLOSE_DATETIME")
 
 fire <- fire.raw[,!(names(fire.raw) %in% drop)]
+head(fire)
 ```
 
 
@@ -40,15 +41,16 @@ incident_date <- fire$INCIDENT_DATETIME
 for(i in 1:len){
   datetime <- unlist(strsplit(incident_date[i], " "))
   date <- datetime[1]
-  timeof <- datetime[2]
+  timeof <- paste(datetime[2],datetime[3])
   date.split <-  unlist(strsplit(date,"/"))
   MONTH[i] <- as.integer(date.split[1])
   DAY[i] <- as.integer(date.split[2])
   YEAR[i] <- as.integer(date.split[3])
   TIME[i] <- as.character(timeof)
 }
+
 #change character to time object 
-TIME <- as.integer(substr(TIME,1,2))
+TIME <- as.integer(format(strptime(TIME,format="%I:%M:%S %p"),"%H"))
 
 fire <- cbind(MONTH,DAY,YEAR,TIME,fire)
 
@@ -130,6 +132,7 @@ clean_fire2 <- clean_fire2[!(clean_fire2$LATITUDE == 0 | clean_fire2$LONGITUDE =
 
 #contains cleaned data with full address, longs and lats
 save(clean_fire2, file="../output/clean_fire2.RData")
+head(clean_fire2)
 ```
 
 
