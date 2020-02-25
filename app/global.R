@@ -21,7 +21,7 @@ load(file="incident_count_aggregate.RData")
 
 # for heatmap
 data = clean_fire2 %>% 
-  select(YEAR, TIME, INCIDENT_CLASSIFICATION_GROUP, LATITUDE, LONGITUDE) %>% 
+  select(YEAR, MONTH, INCIDENT_CLASSIFICATION_GROUP, LATITUDE, LONGITUDE) %>% 
   mutate(Severity = map_dbl(INCIDENT_CLASSIFICATION_GROUP, ~ switch(.x, 
                                                                     "Structural Fires" = 6, 
                                                                     "NonStructural Fires" = 5, 
@@ -29,12 +29,12 @@ data = clean_fire2 %>%
                                                                     "NonMedical Emergencies" = 3, 
                                                                     "NonMedical MFAs" = 2, 
                                                                     "Medical MFAs" = 1)))
+
 color = data.frame(
-  INCIDENT_CLASSIFICATION_GROUP = c("NonMedical Emergencies", "Medical Emergencies", "NonMedical MFAs", "Medical MFAs", "NonStructural Fires", "Structural Fires"), 
-  color = c("#e0f0e9", "#622a1d", "#bbcdc5", "#c3272b", "#808080", "#ff491f"))
+  INCIDENT_CLASSIFICATION_GROUP = c("Structural Fires", "NonStructural Fires", "Medical Emergencies", "NonMedical Emergencies", "NonMedical MFAs", "Medical MFAs"), 
+  color = c("#9d2933", "#ff4e20", "#faff72", "#ffc773", "#e9e7ef", "#ffffff"))
 
 incidence <- merge(data, color, by = c("INCIDENT_CLASSIFICATION_GROUP","INCIDENT_CLASSIFICATION_GROUP"), all.y = F)
-
 
 ## dataset for stat repo
 # tab1/plot1
