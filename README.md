@@ -4,7 +4,7 @@
 
 ![screenshot](doc/screenshot2.png)
 
-In this second project of GR5243 Applied Data Science, we develop a version 2.0 of an *Exploratory Data Analysis and Visualization* shiny app on a topic of your choice using [NYC Open Data](https://opendata.cityofnewyork.us/) or U.S. government open data released on the [data.gov](https://data.gov/) website. See [Project 2 Description](doc/project2_desc.md) for more details.  
+In this second project of GR5243 Applied Data Science, we develop a version 2.0 of an *Exploratory Data Analysis and Visualization* shiny app on emergency reports related to FDNY using [NYC Open Data](https://data.cityofnewyork.us/Public-Safety/Fire-Incident-Dispatch-Data/8m42-w767). See [Project 2 Description](doc/project2_desc.md) for more details.  
 
 The **learning goals** for this project is:
 
@@ -22,13 +22,13 @@ Term: Fall 2019
 
 + Team #
 + **Projec title**: + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
+	+ Rui Wang
+	+ Daniel Schmidle
+	+ Huize Huang
+	+ Ivan Wolansky
+	+ Jiawei Liu
 
-+ **Project summary**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
++ **Project summary**: "Our Shiny App is about all the emergency reports related to FDNY, constructing a map to clearly visualize the emergency locations. Our main target audience is the FDNY. This app can help them easily understand the overall situations in NYC, making rational allocation of resources. It will be meaningful if they deploy more firehouses within the area of higher emergency frequencies in the city. What's more, New York citizens are also encouraged to check our app when considering the safety factors of their future houses.
 
 + **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
