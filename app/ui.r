@@ -93,8 +93,6 @@ shinyUI(
                  
                  # Report
                  tabPanel("Analysis",icon = icon("bar-chart-o"),
-                          h2("Summary Statistics"),
-                          
                           wellPanel(style = "overflow-y:scroll; height: 850px; max-height: 750px; background-color: #ffffff;",
                                     tabsetPanel(type="tabs",
                                                 
