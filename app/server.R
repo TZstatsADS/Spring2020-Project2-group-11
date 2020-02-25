@@ -1,37 +1,3 @@
-library(shiny)
-library(leaflet)
-library(data.table)
-library(plotly)
-library(shinyWidgets)
-library(googleVis)
-library(geosphere)
-library(leaflet.extras)
-library(ggmap)
-library(purrr)
-library(magrittr)
-
-##Data processing
-
-load(file = "/Users/rachel/Documents/GitHub/Spring2020-Project2-group-11/output/clean_fire2.RData")
-data = clean_fire2 %>% 
-  select(YEAR, TIME, INCIDENT_CLASSIFICATION_GROUP, LATITUDE, LONGITUDE) %>% 
-  mutate(Severity = map_dbl(INCIDENT_CLASSIFICATION_GROUP, ~ switch(.x, 
-                                                          "Structural Fires" = 6, 
-                                                          "NonStructural Fires" = 5, 
-                                                          "Medical Emergencies" = 4, 
-                                                          "NonMedical Emergencies" = 3, 
-                                                          "NonMedical MFAs" = 2, 
-                                                          "Medical MFAs" = 1)))
-
-load(file="/Users/rachel/Documents/GitHub/Spring2020-Project2-group-11/output/firehouse_locations.RData")
-load(file="/Users/rachel/Documents/GitHub/Spring2020-Project2-group-11/output/incident_count_aggregate.RData")
-
-color = data.frame(
-  INCIDENT_CLASSIFICATION_GROUP = c("NonMedical Emergencies", "Medical Emergencies", "NonMedical MFAs", "Medical MFAs", "NonStructural Fires", "Structural Fires"), 
-  color = c("#e0f0e9", "#622a1d", "#bbcdc5", "#c3272b", "#808080", "#ff491f"))
-
-incidence <- merge(data, color, by = c("INCIDENT_CLASSIFICATION_GROUP","INCIDENT_CLASSIFICATION_GROUP"), all.y = F)
-
 
 shinyServer(function(input, output, session) {
   
@@ -93,7 +59,6 @@ shinyServer(function(input, output, session) {
     }
     
     
-    
     ### need weighted avg here
     
     inc_total <- nrow(inc_within_range)
@@ -146,7 +111,6 @@ shinyServer(function(input, output, session) {
                  icon = list(iconUrl = "https://classroomclipart.com/images/gallery/Clipart/Emergency/TN_firestation-firehouse-clipart.jpg",
                              iconSize = c(20,20)))
     
-    
     leafletProxy('map') %>%
       addCircles(lng = clong, lat = clat, group = 'circles',
                  stroke = TRUE, radius = radius,popup = paste("SEVERITY LEVEL: ", round(alarm_index,2), sep = ""),
@@ -160,12 +124,6 @@ shinyServer(function(input, output, session) {
     leafletProxy('map', data = inc_within_range) %>%
       addCircles(~LONGITUDE,~LATITUDE, group =~INCIDENT_CLASSIFICATION_GROUP, stroke = F,
                  radius = 12, fillOpacity = 0.8,fillColor=~color)
-    
-    
-    
-    
-    
-    
     
     #Distribution of the Types of Incidence
     output$click_inc_pie <- renderPlotly({
@@ -210,5 +168,216 @@ shinyServer(function(input, output, session) {
     if("" %in% input$show_firehouses) leafletProxy("map") %>% showGroup("firehouses")
     else{leafletProxy("map") %>% hideGroup("firehouses")}
   }, ignoreNULL = FALSE)
+  
+  ## Analysis Part
+  output$dplot1 <- renderPlotly({
+    
+    v <-  switch(input$a1,
+                 c1=T,
+                 F)
+    if(v==T){
+      ggplotly(class1)
+    }
+    else{
+      ggplotly(class2)
+    }
+  })
+  
+  output$dplot2 <- renderPlotly({
+    
+    v <-  switch(input$b1,
+                 c1=T,
+                 F)
+    if(v==T){
+      ggplotly(rt)
+    }
+    else{
+      ggplotly(rt2)  
+    }
+  })
+  
+  output$dplot3 <- renderPlotly({
+    
+    v <-  switch(input$c1,
+                 c1=T,
+                 F)
+    
+    if(v==T){
+      ggplotly(au)
+    }
+    else{
+      ggplotly(au2)  
+    }
+  })
+  
+  output$dplot4 <- renderPlotly({
+    
+    v <- switch(input$d1,
+                c1="c1",
+                c2="c2",
+                c3="c3",
+                "c1")
+    
+    if(v=="c1"){
+      ggplotly(seasonal_fires)
+    }
+    else if(v=="c2"){
+      ggplotly(seasonal_medical)
+    }
+    else if(v=="c3"){
+      ggplotly(seasonal_mfa)
+    }
+  })
+  
+  
+  ## Personalized Stat Part
+  # creates a reactive dataframe that has the subsetting needed for the tab1/plot1
+  data_stat1 <- reactive(
+    clean_fire2_stat1 %>% 
+      filter(INCIDENT_BOROUGH == input$stat_borough1,
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident1) %>%
+      group_by(YEAR,MONTH) %>%
+      summarise(Calls = sum(c1))) 
+  # make the tab1/plot1: monthly fire department calls by borough by year with selected types of incidents
+  output$stat_output1 <- renderPlotly({
+    g1 <- ggplot(data_stat1(),aes(x = MONTH,y = Calls,color = factor(YEAR)))+
+      geom_point()+
+      geom_line()+
+      scale_x_continuous(breaks=seq(1, 12, 1))+
+      theme_light()+
+      labs(x = "Month", y = "Incidents",color = "YEAR",
+           title = paste("Monthly Fire Department Calls of",input$stat_borough1,sep = " "))+
+      theme(plot.title = element_text(hjust = 0.5))
+    ggplotly(g1)
+  })
+  
+  # creates a reactive dataframe that has the subsetting needed for the tab1/plot2
+  data_stat2 <- reactive(
+    clean_fire2_stat1 %>% 
+      filter(INCIDENT_BOROUGH %in% input$stat_borough2,
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident2) %>%
+      group_by(YEAR,MONTH,INCIDENT_BOROUGH) %>%
+      summarise(Calls = sum(c1)))
+  # make the tab1/plot2: monthly fire department calls by borough from 2013-2018 with selected types of incidents
+  output$stat_output2 <- renderPlotly({
+    g2 <- data_stat2() %>%
+      mutate(Time = MONTH+(YEAR-2013)*12) %>%
+      ggplot(aes(x = Time, y = Calls,color = INCIDENT_BOROUGH))+
+      geom_point()+
+      geom_line()+
+      scale_x_continuous(breaks = seq(1,72,2))+
+      theme_light()+
+      labs(x = "Time", y = "Incidents", color = "Selected Borough",
+           title = "Fire Department Calls of Different Borough from 2013-2018")+
+      theme(plot.title = element_text(hjust = 0.5))
+    ggplotly(g2)
+  })
+  
+  # creates a reactive dataframe that has the subsetting needed for the tab2/plot1
+  data_stat3 <- reactive(
+    clean_fire2_stat2 %>% 
+      filter(ZIPCODE == input$stat_zipcode1,
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident3) %>%
+      group_by(YEAR,MONTH) %>%
+      summarise(Calls = sum(c1)))
+  # make the tab2/plot1: monthly fire department calls by zipcode by year with selected types of incidents
+  output$stat_output3 <- renderPlotly({
+    g3 <- ggplot(data_stat3(),aes(x = MONTH,y = Calls,color = factor(YEAR)))+
+      geom_point()+
+      geom_line()+
+      scale_x_continuous(breaks=seq(1, 12, 1))+
+      theme_light()+
+      labs(x = "Month", y = "Incidents",color = "YEAR",
+           title = paste("Monthly Fire Department Calls of",input$stat_zipcode1,sep = " "))+
+      theme(plot.title = element_text(hjust = 0.5))
+    ggplotly(g3)
+  })
+  
+  # creates a reactive dataframe that has the subsetting needed for the tab2/plot2
+  data_stat4 <- reactive(
+    clean_fire2_stat2 %>% 
+      filter(ZIPCODE %in% c(input$stat_zipcode2,input$stat_zipcode3,input$stat_zipcode4),
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident4) %>%
+      group_by(ZIPCODE,YEAR,MONTH) %>%
+      summarise(Calls = sum(c1)))
+  # make the tab2/plot2: monthly fire department calls of 3 zipcode from 2013-2018 with selected types of incidents
+  output$stat_output4 <- renderPlotly({
+    g4 <- data_stat4() %>%
+      mutate(Time = MONTH+(YEAR-2013)*12) %>%
+      ggplot(aes(x = Time,y = Calls,color = factor(ZIPCODE)))+
+      geom_point()+
+      geom_line()+
+      scale_x_continuous(breaks = seq(1,72,2))+
+      theme_light()+
+      labs(x = "Time", y = "Incidents", color = "Selected Zipcode",
+           title = "Fire Department Calls of Different Zipcode from 2013-2018")+
+      theme(plot.title = element_text(hjust = 0.5))
+    ggplotly(g4)
+  })
+  
+  
+  data_stat5 <- reactive(
+    clean_fire2_stat3 %>%
+      filter(INCIDENT_BOROUGH %in% input$stat_borough3,
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident5)
+  )
+  
+  output$stat_output5 <- renderPlotly({
+    g5 <- ggplot(data_stat5(),
+                 aes(x = ENGINES_ASSIGNED_QUANTITY, y = LADDERS_ASSIGNED_QUANTITY,color = INCIDENT_CLASSIFICATION_GROUP))+
+      geom_point(aes(x = ENGINES_ASSIGNED_QUANTITY, y = LADDERS_ASSIGNED_QUANTITY,color = INCIDENT_CLASSIFICATION_GROUP))+
+      geom_abline(slope = 1, intercept = 0)+theme_light()+
+      labs(x = "the number of engine units assigned", y = "the number of ladders assigned",color = "Incident Types",
+           title = paste(input$stat_borough3,": Engines Assigned * Ladders Assigned"))+
+      theme(plot.title = element_text(hjust = 0.5))
+    ggplotly(g5)
+  })
+  
+  data_stat6 <- reactive(
+    clean_fire2_stat4 %>%
+      filter(YEAR == input$stat_year1,MONTH == input$stat_month1,
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident6)
+  )
+  
+  output$stat_output6 <- renderPlotly({
+    g6 <- ggplot(data_stat6(),aes(x = INCIDENT_BOROUGH, y = c, fill = ENGINES))+
+      geom_bar(stat='identity',position='dodge')+ theme_light()+
+      labs(x = "Borough", y = "Incidents",color = "Incident Types",
+           title = paste("The Number of Engine Units Assigned of Different Borough in ",
+                         input$stat_month1,"/",input$stat_year1,sep = ""))+
+      theme(plot.title = element_text(hjust = 0.5))
+    ggplotly(g6)
+    
+  })
+  
+  data_stat7 <- reactive(
+    clean_fire2_stat1 %>%
+      filter(INCIDENT_BOROUGH == input$stat_borough4,
+             INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident7) %>%
+      group_by(YEAR,MONTH) %>%
+      summarise(Calls = sum(c1))
+  )
+  
+  
+  output$stat_output7 <- renderPlot({
+    g7 <- data_stat7()$Calls %>%
+      ts(start = c(2013,1),end = c(2018,12),frequency = 12) %>%
+      auto.arima() %>%
+      forecast(h = 24, level = c(90)) %>%
+      autoplot() + theme_light() +
+      labs(x = "Year", y = "Incidents",
+           title = paste("Forecast of Incidents in",input$stat_borough4, sep = " "))+
+      theme(plot.title = element_text(hjust = 0.5))
+    g7
+  })
+  
+  output$stat_output8 <- renderText({
+    g8 <- data_stat7()$Calls %>%
+      ts(start = c(2013,1),end = c(2018,12),frequency = 12) %>%
+      auto.arima() %>%
+      forecast(h = 24, level = c(90))
+    paste("Note: The model is",g8$method, sep = " ")
+  })
+  
   
 })
