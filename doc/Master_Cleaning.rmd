@@ -131,6 +131,12 @@ clean_fire2 <- fire
 clean_fire2 <- clean_fire2[!(clean_fire2$LATITUDE == 0 | clean_fire2$LONGITUDE == 0),]
 
 #contains cleaned data with full address, longs and lats
+
+#Remove unused columns 
+drop <- c("ALARM_BOX_BOROUGH","ALARM_BOX_NUMBER","POLICEPRECINCT","CITYCOUNCILDISTRICT","CONGRESSIONALDISTRICT","DISPATCH_RESPONSE_SECONDS_QY","VALID_DISPATCH_RSPNS_TIME_INDC","INCIDENT_TRAVEL_TM_SECONDS_QY")
+
+clean_fire2 <- clean_fire2[,!(names(clean_fire2) %in% drop)]
+
 save(clean_fire2, file="../output/clean_fire2.RData")
 ```
 
