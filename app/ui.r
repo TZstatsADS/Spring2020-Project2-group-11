@@ -92,34 +92,70 @@ shinyUI(
                  
                  
                  # Report
-                 tabPanel("Report",icon = icon("bar-chart-o"),
+                 tabPanel("Analysis",icon = icon("bar-chart-o"),
                           h2("Summary Statistics"),
                           
                           wellPanel(style = "overflow-y:scroll; height: 850px; max-height: 750px; background-color: #ffffff;",
                                     tabsetPanel(type="tabs",
                                                 
-                                                tabPanel(title="a",
-                                                         br(),
-                                                         div(plotlyOutput(""), align="center")
-                                                         # sidebarLayout(position="left",
-                                                         #               sidebarPanel("sidebar panel"),
-                                                         #               mainPanel("main panel"))
-                                                         
+                                                tabPanel("Response Time", 
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             radioButtons("b1","Time",c("By Borough"="c1","By Classification"="c2")
+                                                             )
+                                                           ),         
+                                                           mainPanel(
+                                                             plotlyOutput("dplot2",width="700px",height="auto"),
+                                                             HTML(paste(h4("Clearly Brooklyn leads the pack for response time year over year. Steady growth in response times for all boroughs (excluding Staten Island) is present except for the year 2018 where there is a greater increase in response time for all of New York City. The average response time by incident classification seems appropriate as more urgency is given to higher priority incidents."),
+                                                                        "Recommendation: Further analysis into why Brooklyn produces the best response time is warranted for possible component reproduction in other boroughs. Further investigation into why the greater increase for the year 2018 is also suggested.",
+                                                                        sep="<br/>"))
+                                                           )
+                                                         )  
                                                 ),
-                                                tabPanel(title="b",
-                                                         br(),
-                                                         div(plotlyOutput(""), align="center")
-                                                         
+                                                
+                                                tabPanel("Classification",
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             radioButtons("a1","Class",c("All Classification"="c1","Without Medical and Non-Medical Emergencies"="c2")
+                                                             )
+                                                           ),         
+                                                           mainPanel(
+                                                             plotlyOutput("dplot1",width="700px",height="auto"),
+                                                             HTML(paste(h4("By separating the number of incidents by incident class, there is a clear discrepancy between the amount of medical and non-medical incident calls and the rest of the classes. Medical and non-medical incidents comprise the vast majority of the FDNY's responsibilities. When Medical and non-medical emergencies are removed from the equation, the highest number of incidences come from structural fires. "),
+                                                                        "Recommendation: Further inquiry is suggested into the utilization of resources by FDNY for Medical and non-Medical Emergencies (possible alternative asset strategies are possible for increased efficiency within departmental calls).",
+                                                                        "*MFA: Malicious False Alarm",
+                                                                        sep="<br/>"))
+                                                           )
+                                                         )  
                                                 ),
-                                                tabPanel(title="c",
-                                                         br(),
-                                                         div(align="center" )
-                                                         
+                                                tabPanel("Assigned Units",
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             radioButtons("c1","Units",c("Engines Response"="c1","Other"="c2")
+                                                             )
+                                                           ),         
+                                                           mainPanel(
+                                                             plotlyOutput("dplot3",width="700px",height="auto"),
+                                                             HTML(paste(h4("There is a clear increase, year over year, of assigned Engines per incidences of Medical and non-medical Emergencies for all New York City. Since 2015 there has been a decrease in Other (non Engine/Ladder) Vehicles assigned to Medical and Non-Medical Emergencies. "),
+                                                                        "Recommendation: Further investigation is warranted as to why there is an increase of fire engines (which are built for the main purpose of fighting fire) assigned to the vast number of FDNY calls to non-fire related, medical and non-medical emergencies. Whereas, Other Units that include FDNY Medical and FDNY EMS vehicles, are on the decline to Medical and non-Medical incidences. Alternative asset strategies should be considered for increased efficiency of departmental calls. ",
+                                                                        sep="<br/>"))
+                                                           )
+                                                         )  
                                                 ),
-                                                tabPanel(title="d",
-                                                         br(),
-                                                         div(align="center" )
-                                                         
+                                                
+                                                tabPanel("Seasonal",
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             radioButtons("d1","Class",c("Fires"="c1","Emergencies"="c2","MFAs"="c3")
+                                                             )
+                                                           ),         
+                                                           mainPanel(
+                                                             plotlyOutput("dplot4",width="700px",height="auto"),
+                                                             HTML(paste(h4("A clear seasonal pattern exists for Structural and Non-Structural Fires with a rise in the winter months, November through April (peaking in January), and fall in the summer months, May through October. Medical and Non-Medical Emergencies show similar patterns by month, year over year, with a gradual rise in the spring, peaking in August, and tapering in the fall (except for a sharp uncharacteristic up spike in January). MFAs (Malicious False Alarms) also follow a clear seasonal pattern, peaking in July and bottoming out in February."),
+                                                                        "Recommendation: Consideration to seasonal adjustments and preparations could be made to FDNY resources. Flexible full-time staff, volunteer workers, and adaptable vehicles could possibly be allocated to seasonal demand by classification of incidences. For example, such flexible assets could be utilized for the larger amount of fire calls in the winter and then changed to focus on the higher number of MFAs in the summer. Additional investigation could be possible to explain the sharp rise in Medical and Non-Medical Emergencies in the month of January. Further research into seasonal adaptations for the FDNY is justified. ",
+                                                                        sep="<br/>"))
+                                                           )
+                                                         )  
                                                 )
                                                 
                                     )
@@ -128,35 +164,98 @@ shinyUI(
                  
                  
                  # Interactive Stat
-                 tabPanel("Interactive Stat",icon = icon("industry"),
+                 tabPanel("Personalized Stat",icon = icon("industry"),
                           h2("Summary Statistics"),
                           
                           wellPanel(style = "overflow-y:scroll; height: 850px; max-height: 750px; background-color: #ffffff;",
                                     tabsetPanel(type="tabs",
                                                 
-                                                tabPanel(title="a",
+                                                # first tab:by borough
+                                                tabPanel("Monthly Calls by Borough and Identification Group",
                                                          br(),
-                                                         div(plotlyOutput(""), align="center"),
-                                                         # sidebarLayout(position="left",
-                                                         #               sidebarPanel("sidebar panel"),
-                                                         #               mainPanel("main panel"))
-                                                         # 
+                                                         # 1st plot, monthly selected types of fire calls grouped by year of selected borough
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             selectInput("stat_borough1","Borough:",
+                                                                         borough_list,selected = "MANHATTAN"),
+                                                             checkboxGroupInput("stat_incident1","Types of Fire Department Calls:",
+                                                                                choices = incident_list, selected = incident_list),
+                                                             width = 3),
+                                                           mainPanel(plotlyOutput("stat_output1", height = "300px"))),
+                                                         hr(),
+                                                         # 2nd plot, compare selected types of fire calls of different selected borough
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             checkboxGroupInput("stat_borough2","Borough:",
+                                                                                choices = c(borough_list,"NEW YORK CITY"), selected = borough_list),
+                                                             checkboxGroupInput("stat_incident2","Types of Fire Department Calls:",
+                                                                                choices = incident_list, selected = incident_list),
+                                                             width = 3),
+                                                           mainPanel(plotlyOutput("stat_output2", height = "350px")))
                                                 ),
-                                                tabPanel(title="b",
+                                                
+                                                # second tab: by zipcode
+                                                tabPanel("Monthly Calls by Zipcode and Identification Group",
                                                          br(),
-                                                         div(plotlyOutput(""), align="center")
-                                                         
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             textInput("stat_zipcode1", "Zipcode", value = "10001"),
+                                                             checkboxGroupInput("stat_incident3","Types of Fire Department Calls:",
+                                                                                choices = incident_list, selected = incident_list),
+                                                             width = 3),
+                                                           mainPanel(plotlyOutput("stat_output3",height = "300px"))),
+                                                         hr(),
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             textInput("stat_zipcode2", "Zipcode1", value = "10001"),
+                                                             textInput("stat_zipcode3", "Zipcode2", value = "10002"),
+                                                             textInput("stat_zipcode4", "Zipcode3", value = "10003"),
+                                                             checkboxGroupInput("stat_incident4","Types of Fire Department Calls:",
+                                                                                choices = incident_list, selected = incident_list),
+                                                             width = 3),
+                                                           mainPanel(plotlyOutput("stat_output4",height = "300px")))
                                                 ),
-                                                tabPanel(title="c",
+                                                
+                                                # third tab: borough * incident
+                                                tabPanel("Units Assigned in the Incident",
                                                          br(),
-                                                         div(img(src="", width="90%"), align="center" )
-                                                         
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             selectInput("stat_borough3","Borough:",
+                                                                         borough_list,selected = "MANHATTAN"),
+                                                             checkboxGroupInput("stat_incident5","Types of Fire Department Calls:",
+                                                                                choices = incident_list, selected = "Structural Fires"),
+                                                             width = 3),
+                                                           mainPanel(plotlyOutput("stat_output5", height = "300px",width = "100%"),width = 9)),
+                                                         hr(),
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             selectInput("stat_year1","Year:",
+                                                                         2013:2018,selected = 2018),
+                                                             selectInput("stat_month1","Month:",
+                                                                         1:12,selected = 1),
+                                                             checkboxGroupInput("stat_incident6","Types of Fire Department Calls:",
+                                                                                choices = incident_list, selected = "Structural Fires"),
+                                                             width = 3),
+                                                           mainPanel(plotlyOutput("stat_output6",height = "300px",width = "100%"),width = 9)
+                                                         )
                                                 ),
-                                                tabPanel(title="d",
+                                                
+                                                # forth tab: prediction
+                                                tabPanel("Prediction",
                                                          br(),
-                                                         div(img(src="", width="90%"), align="center" )
-                                                         
-                                                )
+                                                         sidebarLayout(
+                                                           sidebarPanel(
+                                                             selectInput("stat_borough4","Borough:",
+                                                                         c(borough_list,"NEW YORK CITY"),selected = "MANHATTAN"),
+                                                             checkboxGroupInput("stat_incident7","Types of Fire Department Calls:",
+                                                                                choices = incident_list,selected = incident_list),
+                                                             width = 3
+                                                           ),
+                                                           mainPanel(plotOutput("stat_output7"),
+                                                                     br(),
+                                                                     textOutput("stat_output8"))
+                                                         ))
                                                 
                                                 
                                     )
