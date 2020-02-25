@@ -13,6 +13,7 @@ library(leaflet.extras)
 library(ggmap)
 library(purrr)
 library(magrittr)
+library(ggmap)
 
 load(file="clean_fire2.RData")
 load(file="firehouse_locations.RData")
@@ -113,6 +114,18 @@ au2 <- clean_fire2 %>%
   xlab("Year") + ylab("Assigned Engines") + labs(color="Classification")
 
 # tab4/plot1
+seasonal_medical <- clean_fire2 %>% 
+  filter(INCIDENT_CLASSIFICATION_GROUP %in% c("Medical Emergencies","NonMedical Emergencies")) %>%
+  group_by(YEAR,MONTH) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = MONTH,y = n,color = factor(YEAR)))+
+  geom_point()+
+  geom_line()+
+  scale_x_continuous(breaks=seq(1, 12, 1))+
+  ggtitle("Medical and Non-Medical Emergencies by Month") +
+  xlab("Month") + ylab("Incidents") + labs(color="Year")
+
+# tab4/plot2
 seasonal_fires <- clean_fire2 %>% 
   filter(INCIDENT_CLASSIFICATION_GROUP %in% c("Structural Fires","NonStructural Fires")) %>%
   group_by(YEAR,MONTH) %>%
@@ -124,7 +137,7 @@ seasonal_fires <- clean_fire2 %>%
   ggtitle("Structural and Non-Structural Fires by Month") +
   xlab("Month") + ylab("Incidents") + labs(color="Year")
 
-# tab4/plot2
+# tab4/plot3
 seasonal_mfa <- clean_fire2 %>% 
   filter(INCIDENT_CLASSIFICATION_GROUP %in% c("NonMedical MFAs","Medical MFAs")) %>%
   group_by(YEAR,MONTH) %>%
