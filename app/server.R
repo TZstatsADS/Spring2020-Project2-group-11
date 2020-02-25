@@ -3,37 +3,46 @@ shinyServer(function(input, output, session) {
   
   ## Map Tab section
   
-  output$map <- renderLeaflet({
-    leaflet() %>%
-     addProviderTiles("Hydda.Full", 
-                       options = providerTileOptions(noWrap = TRUE)) %>%
-      setView(-73.8767716,40.7379555,zoom = 13) %>%
-      addResetMapButton()
-  })
-  
-  # makes the physical map
-  #output$heatMap <- renderLeaflet({
-  #leaflet(data = firehouses, width="100%") %>% 
-  #    addProviderTiles(providers$Hydda.Full) %>%
-  #    setView(-73.8767716,40.7379555, zoom = 11) %>%
-   #   addResetMapButton()
-    
+  #output$map <- renderLeaflet({
+  #  leaflet() %>%
+  #   addProviderTiles("Hydda.Full", 
+  #                     options = providerTileOptions(noWrap = TRUE)) %>%
+  #    setView(-73.8767716,40.7379555,zoom = 13) %>%
+  #    addResetMapButton()
   #})
   
-  # allows you to select or deselect to show firehouses
-  #observeEvent(input$show_firehouses, {
-   # if("" %in% input$show_firehouses) leafletProxy("heatMap") %>% showGroup("firehouses")
-    #else{leafletProxy("heatMap") %>% hideGroup("firehouses")}
-  #}, ignoreNULL = FALSE)
+  output$map <- renderLeaflet({
+    leaflet(data = firehouses, width="100%") %>% 
+      addProviderTiles(providers$Hydda.Full) %>%
+      setView(-73.8767716,40.7379555,zoom = 13) %>%
+      addResetMapButton()
+    
+  })
   
-
+  # creates a reactive dataframe that has the subsetting needed for the heatmap
+  incident_data_by_groups <-  reactive({
+    subset(count_by_lat_long_incident, INCIDENT_CLASSIFICATION_GROUP %in% c(input$click_inceidence_type))
+  })
+  
+  # Add heatmap
+  observe({
+    
+    # renders a new heatmap based off of what is selected
+    leafletProxy(mapId = "map", data=incident_data_by_groups()) %>%
+      clearHeatmap() %>%
+      addHeatmap(lng = ~LONGITUDE, lat = ~LATITUDE, group = "heatmap", intensity = ~COUNT,
+                 blur = 15, max = 0.05, radius = 12) %>%
+      addMarkers(lng=firehouses$Longitude, lat=firehouses$Latitude, group="firehouses", popup = firehouses$FacilityName,
+                 icon = list(iconUrl = "https://classroomclipart.com/images/gallery/Clipart/Emergency/TN_firestation-firehouse-clipart.jpg",
+                             iconSize = c(15,15)))
+    
+  })
+  
   #enable/disable markers of specific group
   
-  #alarm_level = c("All Hands Working", "First Alarm","Second Alarm", "Third Alarm", "Forth Alarm", "Fifth Alarm and Higher")
-  #al_color = c("#c9dd22", "#fff143", "#ff8c31", "#ff7500", "#9d2933", "#622a1d")
+  incident_type = c("Structural Fires", "NonStructural Fires", "Medical Emergencies", "NonMedical Emergencies", "NonMedical MFAs", "Medical MFAs")
+  ac_color = c("#9d2933", "#ff4e20", "#faff72", "#ffc773", "#e9e7ef", "#ffffff")
   
-  incident_type = c("NonMedical Emergencies", "Medical Emergencies", "NonMedical MFAs", "Medical MFAs", "NonStructural Fires", "Structural Fires")
-  ac_color = c("#e0f0e9", "#622a1d", "#bbcdc5", "#c3272b", "#808080", "#ff491f")
   
   observeEvent(input$map_click, {
     #if(!input$click_multi) 
@@ -45,18 +54,15 @@ shinyServer(function(input, output, session) {
     
     #output info
     output$click_coord <- renderText(paste("Latitude:",round(clat,7),", Longitude:",round(clong,7)))
-    year_select <-as.numeric(input$year)
-    f_hour <- input$from_hour 
-    t_hour <- input$to_hour
+    year_select <- as.numeric(input$year)
+    month_select <- as.numeric(input$month)
+    
     
     incidence <- incidence[incidence$YEAR == year_select,]
+    incidence <- incidence[incidence$MONTH == month_select,]
     inc_within_range <- incidence[distCosine(c(clong,clat),incidence[,c("LONGITUDE","LATITUDE")]) <= input$click_radius,]
-    if(input$from_hour <= input$to_hour){
-      inc_within_range  <- inc_within_range[(inc_within_range$TIME>=f_hour)&(inc_within_range$TIME<=t_hour),]
-    }
-    else{
-      inc_within_range  <- inc_within_range[(inc_within_range$TIME>=f_hour)|(inc_within_range$TIME<=t_hour),]
-    }
+    
+    
     
     
     ### need weighted avg here
@@ -67,15 +73,7 @@ shinyServer(function(input, output, session) {
     
     
     # alarm index
-    if(t_hour==f_hour){
-      alarm_index <- (total_index/(radius/1000)^2)*24
-    }
-    else if(t_hour>f_hour){
-      alarm_index <- (total_index/(radius/1000)^2)*24/(t_hour-f_hour)
-    }
-    else{
-      alarm_index <- (total_index/(radius/1000)^2)*24/(24+t_hour-f_hour)
-    }
+    alarm_index <- (total_index/(radius/1000)^2)*24
     
     if(alarm_index> 40000){
       output$click_alarm_index_red <- renderText(round(alarm_index,2))
@@ -97,20 +95,8 @@ shinyServer(function(input, output, session) {
     output$click_inc_per_day <- renderText(round(inc_per_day,2))
     output$click_alarm_index <- renderText(round(alarm_index, 2))
     
-    # creates a reactive dataframe that has the subsetting needed for the heatmap
-    incident_data_by_groups <-  reactive({
-      subset(count_by_lat_long_incident, INCIDENT_CLASSIFICATION_GROUP %in% c(input$click_incident_type))
-    })
     
-    # renders a new heatmap based off of what is selected
-    leafletProxy(mapId = "map", data=incident_data_by_groups()) %>%
-      clearHeatmap() %>%
-      addHeatmap(lng = ~LONGITUDE, lat = ~LATITUDE, intensity = ~COUNT,
-                 blur = 15, max = 0.05, radius = 12) %>%
-      addMarkers(lng=firehouses$Longitude, lat=firehouses$Latitude, group="firehouses", popup = firehouses$FacilityName,
-                 icon = list(iconUrl = "https://classroomclipart.com/images/gallery/Clipart/Emergency/TN_firestation-firehouse-clipart.jpg",
-                             iconSize = c(20,20)))
-    
+    # Add click circle for map
     leafletProxy('map') %>%
       addCircles(lng = clong, lat = clat, group = 'circles',
                  stroke = TRUE, radius = radius,popup = paste("SEVERITY LEVEL: ", round(alarm_index,2), sep = ""),
@@ -125,10 +111,11 @@ shinyServer(function(input, output, session) {
       addCircles(~LONGITUDE,~LATITUDE, group =~INCIDENT_CLASSIFICATION_GROUP, stroke = F,
                  radius = 12, fillOpacity = 0.8,fillColor=~color)
     
-    #Distribution of the Types of Incidence
+    
+    # Distribution of the Types of Incidence
     output$click_inc_pie <- renderPlotly({
       ds <- table(inc_within_range$INCIDENT_CLASSIFICATION_GROUP)
-      pie_title <- paste("Incidence categories ","from ",input$from_hour,"h to ",input$to_hour,"h",sep="")
+      pie_title <- paste("Incidence Categories", sep="")
       ds <- ds[incident_type]
       ds[is.na(ds)] <- 0
       plot_ly(labels=incident_type, values=ds, type = "pie",
@@ -141,11 +128,12 @@ shinyServer(function(input, output, session) {
     
   })
   
+  
   # Select the types of the incidence to be visualized
-  observeEvent(input$click_incident_type, {
+  observeEvent(input$click_inceidence_type, {
     
     for(type in incident_type){
-      if(type %in% input$click_incident_type) leafletProxy("map") %>% showGroup(type)
+      if(type %in% input$click_inceidence_type) leafletProxy("map") %>% showGroup(type)
       else{leafletProxy("map") %>% hideGroup(type)}
     }
     
@@ -153,12 +141,12 @@ shinyServer(function(input, output, session) {
   
   # Select all or none of the incidence to be visualize
   observeEvent(input$click_all_incident_type, {
-    updateCheckboxGroupInput(session, "click_incident_type",
+    updateCheckboxGroupInput(session, "click_inceidence_type",
                              choices = incident_type,
                              selected = incident_type)
   })
   observeEvent(input$click_none_incident_type, {
-    updateCheckboxGroupInput(session, "click_incident_type",
+    updateCheckboxGroupInput(session, "click_inceidence_type",
                              choices = incident_type,
                              selected = NULL)
   })
@@ -167,6 +155,12 @@ shinyServer(function(input, output, session) {
   observeEvent(input$show_firehouses, {
     if("" %in% input$show_firehouses) leafletProxy("map") %>% showGroup("firehouses")
     else{leafletProxy("map") %>% hideGroup("firehouses")}
+  }, ignoreNULL = FALSE)
+  
+  # allows you to select or deselect to show heatmap
+  observeEvent(input$show_heatmap, {
+    if("" %in% input$show_heatmap) leafletProxy("map") %>% showGroup("heatmap")
+    else{leafletProxy("map") %>% hideGroup("heatmap")}
   }, ignoreNULL = FALSE)
   
   ## Analysis Part

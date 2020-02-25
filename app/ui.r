@@ -16,71 +16,69 @@ shinyUI(
                  theme = shinytheme("united"),
                  
                  # Map
-                 tabPanel("Map",
-                          div(class="outer",
-                              leafletOutput("map",width="100%",height=780),
-                              
-                              
-                              absolutePanel(id = "control", class = "panel panel-default", fixed= TRUE, draggable = FALSE,
-                                            top = 110, left = 60, right = "auto", bottom = "auto", width = 250, height = "auto",
-                                            
-                                            sliderInput("click_radius", "Radius of area around the selected address", min=500, max=3000, value=250, step=10),
-                                            
-                                            checkboxGroupInput("click_incident_type", "Alarm Classification",
-                                                               choices =c("NonMedical Emergencies", "Medical Emergencies", "NonMedical MFAs", "Medical MFAs", "NonStructural Fires", "Structural Fires"),
-                                                               selected =c("NonMedical Emergencies", "Medical Emergencies", "NonMedical MFAs", "Medical MFAs", "NonStructural Fires", "Structural Fires")),
-                                            actionButton("click_all_incident_type", "Select ALL"),
-                                            actionButton("click_none_incident_type", "Select NONE"),
-                                            
-                                            checkboxGroupInput("show_firehouses", "Show Firehouses: ",
-                                                               choices = "", selected = ""),
-                                            
-                                            selectInput('year', 'Selected year for the  plot:',
-                                                        2013:2018, selected = 2018),
-                                            sliderInput("from_hour", "Starting Time", min=0, max=23, value=0, step=1),
-                                            sliderInput("to_hour", "End Time", min=0, max=23, value=23, step=1),
-                                            style = "opacity: 0.80"
-                                            
-                              ),
-                              
-                              absolutePanel(id = "controls", class = "panel panel-default", fixed= TRUE, draggable = FALSE,
-                                            top = 110, left = "auto", right = 20, bottom = "auto", width = 320, height = "auto",
-                                            h3("Summary of the Covered Area"),
-                                            h4("The Geographical Information"),
-                                            p(textOutput("click_coord")),
-                                            h4("The Alarm Index"),
-                                            p(strong(textOutput("click_alarm_index_red", inline = T))),
-                                            tags$head(tags$style("#click_alarm_index_red{color: red;
-                                            font-size: 20px;
-                                            font-style: italic;
-                                            }"
-                                            )
-                                            ),
-                                            p(strong(textOutput("click_alarm_index_orange", inline = T))),
-                                            tags$head(tags$style("#click_alarm_index_orange{color: orange;
-                                            font-size: 20px;
-                                            font-style: italic;
-                                            }"
-                                            )
-                                            ),
-                                            p(strong(textOutput("click_alarm_index_green", inline = T))),
-                                            tags$head(tags$style("#click_alarm_index_green{color: green;
-                                            font-size: 20px;
-                                                                 font-style: italic;
-                                                                 }"
-                                            )
-                                            ),
-                                            h4("Number of Incidences in Selected Area"),
-                                            p(strong(textOutput("click_inc_total", inline = T)), " in total year."),
-                                            p(strong(textOutput("click_inc_per_day", inline = T)), " per day."),
-                                            
-                                            br(),
-                                            h4("Pie chart of the distribution of incident classification"),
-                                            style = "opacity: 0.80",
-                                            br(),
-                                            plotlyOutput("click_inc_pie",height="300")
-                              )
-                              
+                 tabPanel("Map",icon = icon("map"),
+                          dashboardPage(dashboardHeader(title = "Map",titleWidth = 300),
+                                        dashboardSidebar(width = 300,
+                                                         sidebarMenu(
+                                                           sliderInput("click_radius", "Radius of area around the selected address", min=500, max=3000, value=250, step=10),
+                                                           
+                                                           checkboxGroupInput("click_inceidence_type", "Alarm Classification",
+                                                                              choices = c("Structural Fires", "NonStructural Fires", "Medical Emergencies", "NonMedical Emergencies", "NonMedical MFAs", "Medical MFAs"), 
+                                                                              selected = c("Structural Fires", "NonStructural Fires", "Medical Emergencies", "NonMedical Emergencies", "NonMedical MFAs", "Medical MFAs")),
+                                                           actionButton("click_all_incident_type", "Select ALL"),
+                                                           actionButton("click_none_incident_type", "Select NONE"),
+                                                           
+                                                           checkboxGroupInput("show_firehouses", "Show Firehouses: ", choices = "", selected = ""), 
+                                                           checkboxGroupInput("show_heatmap", "Show HeatMap: ", choices = "", selected = ""), 
+                                                           
+                                                           selectInput('year', 'Selected year for the plot:', 
+                                                                       2013:2018, selected = 2018), 
+                                                           selectInput('month', 'Selected month for the plot:', 
+                                                                       1:12, selected = 1)
+                                                         )
+                                        ),
+                                        dashboardBody(
+                                          #leafletOutput("map",width="100%",height=500)
+                                          fluidRow(column(4,
+                                                          h3("Summary of the Covered Area"),
+                                                          h4("The Geographical Information"),
+                                                          p(textOutput("click_coord")),
+                                                          h4("The Alarm Index"),
+                                                          p(strong(textOutput("click_alarm_index_red", inline = T))),
+                                                          tags$head(tags$style("#click_alarm_index_red{color: red;
+                                                          font-size: 20px;
+                                                          font-style: italic;
+                                                          }"
+                                                          )
+                                                          ),
+                                                          p(strong(textOutput("click_alarm_index_orange", inline = T))),
+                                                          tags$head(tags$style("#click_alarm_index_orange{color: orange;
+                                                          font-size: 20px;
+                                                          font-style: italic;
+                                                          }"
+                                                          )
+                                                          ),
+                                                          p(strong(textOutput("click_alarm_index_green", inline = T))),
+                                                          tags$head(tags$style("#click_alarm_index_green{color: green;
+                                                          font-size: 20px;
+                                                          font-style: italic;
+                                                           }"
+                                                          )
+                                                          ),
+                                                          h4("Number of Incidences in Selected Area"),
+                                                          p(strong(textOutput("click_inc_total", inline = T)), " in total year."),
+                                                          p(strong(textOutput("click_inc_per_day", inline = T)), " per day."),
+                                                          
+                                                          br(),
+                                                          h4("Pie chart of the distribution of incident classification"),
+                                                          style = "opacity: 0.80",
+                                                          br(),
+                                                          plotlyOutput("click_inc_pie",height="300")
+                                          ),
+                                          column(8, 
+                                                 leafletOutput("map", height = "700px"))
+                                          )
+                                        )
                           )
                  ),
                  
