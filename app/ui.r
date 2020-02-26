@@ -163,45 +163,56 @@ shinyUI(
                           wellPanel(style = "overflow-y:scroll; height: 850px; max-height: 750px; background-color: #ffffff;",
                                     tabsetPanel(type="tabs",
                                                 
-                                                # first tab:by borough
+                                                # first tab:Monthly Calls by Borough and Identification Group
                                                 tabPanel("Monthly Calls by Borough and Identification Group",
                                                          br(),
-                                                         # 1st plot, monthly selected types of fire calls grouped by year of selected borough
+                                                         # 1st plot: monthly selected types of fire calls grouped by year of selected borough
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # select list to select the borough
                                                              selectInput("stat_borough1","Borough:",
                                                                          borough_list,selected = "MANHATTAN"),
+                                                             # checkbox to select the incident type
                                                              checkboxGroupInput("stat_incident1","Types of Fire Department Calls:",
                                                                                 choices = incident_list, selected = incident_list),
                                                              width = 3),
                                                            mainPanel(plotlyOutput("stat_output1", height = "300px"))),
                                                          hr(),
-                                                         # 2nd plot, compare selected types of fire calls of different selected borough
+                                                         # 2nd plot: compare selected types of fire calls of different selected borough
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # checkbox to select the borough (and NYC)
                                                              checkboxGroupInput("stat_borough2","Borough:",
                                                                                 choices = c(borough_list,"NEW YORK CITY"), selected = borough_list),
+                                                             # checkbox to select the incident type
                                                              checkboxGroupInput("stat_incident2","Types of Fire Department Calls:",
                                                                                 choices = incident_list, selected = incident_list),
                                                              width = 3),
                                                            mainPanel(plotlyOutput("stat_output2", height = "350px")))
                                                 ),
                                                 
-                                                # second tab: by zipcode
+                                                # second tab: Monthly Calls by Zipcode and Identification Group
                                                 tabPanel("Monthly Calls by Zipcode and Identification Group",
                                                          br(),
+                                                         # 1st plot: monthly selected types of fire calls grouped by year of selected zipcode
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # text box to enter the selected zipcode
                                                              textInput("stat_zipcode1", "Zipcode", value = "10001"),
+                                                             # checkbox to select the incident type
                                                              checkboxGroupInput("stat_incident3","Types of Fire Department Calls:",
                                                                                 choices = incident_list, selected = incident_list),
                                                              width = 3),
                                                            mainPanel(plotlyOutput("stat_output3",height = "300px"))),
                                                          hr(),
+                                                         # 2nd plot: compare selected types of fire calls of different selected zipcode (up to 3)  
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # first wanted zipcode
                                                              textInput("stat_zipcode2", "Zipcode1", value = "10001"),
+                                                             # second wanted zipcode
                                                              textInput("stat_zipcode3", "Zipcode2", value = "10002"),
+                                                             # third zipcode
                                                              textInput("stat_zipcode4", "Zipcode3", value = "10003"),
                                                              checkboxGroupInput("stat_incident4","Types of Fire Department Calls:",
                                                                                 choices = incident_list, selected = incident_list),
@@ -209,24 +220,31 @@ shinyUI(
                                                            mainPanel(plotlyOutput("stat_output4",height = "300px")))
                                                 ),
                                                 
-                                                # third tab: borough * incident
+                                                # third tab: units assgiend
                                                 tabPanel("Units Assigned in the Incident",
                                                          br(),
+                                                         # first plot: x = engines assigned, y = ladders assigned
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # select list to select borough
                                                              selectInput("stat_borough3","Borough:",
                                                                          borough_list,selected = "QUEENS"),
+                                                             # checkbox to select incident types
                                                              checkboxGroupInput("stat_incident5","Types of Fire Department Calls:",
                                                                                 choices = incident_list, selected = "Structural Fires"),
                                                              width = 3),
                                                            mainPanel(plotlyOutput("stat_output5", height = "300px",width = "100%"),width = 9)),
                                                          hr(),
+                                                         # second plot: assignment of engines of different borough and incident types in one specific month
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # select list to select the year
                                                              selectInput("stat_year1","Year:",
                                                                          2013:2018,selected = 2018),
+                                                             # select list to select the month
                                                              selectInput("stat_month1","Month:",
                                                                          1:12,selected = 1),
+                                                             # checkbox to select the incident types
                                                              checkboxGroupInput("stat_incident6","Types of Fire Department Calls:",
                                                                                 choices = incident_list, selected = c("Medical MFAs", "NonMedical MFAs")),
                                                              width = 3),
@@ -234,13 +252,15 @@ shinyUI(
                                                          )
                                                 ),
                                                 
-                                                # forth tab: prediction
+                                                # forth tab: prediction of one borough/NYC for some selected incidents types
                                                 tabPanel("Prediction",
                                                          br(),
                                                          sidebarLayout(
                                                            sidebarPanel(
+                                                             # select list to select the borough
                                                              selectInput("stat_borough4","Borough:",
                                                                          c(borough_list,"NEW YORK CITY"),selected = "MANHATTAN"),
+                                                             # select list to select the incident types
                                                              checkboxGroupInput("stat_incident7","Types of Fire Department Calls:",
                                                                                 choices = incident_list,selected = incident_list),
                                                              width = 3
