@@ -86,11 +86,11 @@ shinyUI(
                  
                  
                  
-                 # Report
+                 # Analysis
                  tabPanel("Analysis",icon = icon("bar-chart-o"),
                           wellPanel(style = "overflow-y:scroll; height: 850px; max-height: 750px; background-color: #ffffff;",
                                     tabsetPanel(type="tabs",
-                                                
+                                                #Response time tab charting and analysis by borough and classification
                                                 tabPanel("Response Time", 
                                                          sidebarLayout(
                                                            sidebarPanel(
@@ -105,7 +105,7 @@ shinyUI(
                                                            )
                                                          )  
                                                 ),
-                                                
+                                                #Classification tab plot and analysis of instances by classification  
                                                 tabPanel("Classification",
                                                          sidebarLayout(
                                                            sidebarPanel(
@@ -121,6 +121,7 @@ shinyUI(
                                                            )
                                                          )  
                                                 ),
+                                                #Assigned Units tab to plot and analyze Engines and Other response to medical emergencies 
                                                 tabPanel("Assigned Units",
                                                          sidebarLayout(
                                                            sidebarPanel(
@@ -135,7 +136,7 @@ shinyUI(
                                                            )
                                                          )  
                                                 ),
-                                                
+                                                #Seasonal tab to plot and analyze seasonal demand
                                                 tabPanel("Seasonal",
                                                          sidebarLayout(
                                                            sidebarPanel(
