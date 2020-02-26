@@ -1,7 +1,7 @@
 shinyServer(function(input, output, session) {
   
   ## Map Tab section
-  
+  # creates the physical base map for the heatmap
   output$map <- renderLeaflet({
     leaflet(data = firehouses, width="100%") %>% 
       addProviderTiles(providers$Hydda.Full) %>%
@@ -12,13 +12,12 @@ shinyServer(function(input, output, session) {
   
   # creates a reactive dataframe that has the subsetting needed for the heatmap
   incident_data_by_groups <-  reactive({
-    subset(count_by_lat_long_incident, INCIDENT_CLASSIFICATION_GROUP %in% c(input$click_inceidence_type))
+    subset(count_by_lat_long_incident, INCIDENT_CLASSIFICATION_GROUP %in% c(input$click_incidence_type))
   })
   
   # Add heatmap
   observe({
-    
-    # renders a new heatmap based off of what is selected
+    # renders a new heatmap based off of what is selected by the user
     leafletProxy(mapId = "map", data=incident_data_by_groups()) %>%
       clearHeatmap() %>%
       addHeatmap(lng = ~LONGITUDE, lat = ~LATITUDE, group = "heatmap", intensity = ~COUNT,
@@ -29,14 +28,12 @@ shinyServer(function(input, output, session) {
     
   })
   
-  #enable/disable markers of specific group
-  
+  #enable/disable markers of specific group; provides colors for each of the groups
   incident_type = c("Structural Fires", "NonStructural Fires", "Medical Emergencies", "NonMedical Emergencies", "NonMedical MFAs", "Medical MFAs")
   ac_color = c("#9d2933", "#ff4e20", "#faff72", "#ffc773", "#e9e7ef", "#ffffff")
   
-  
+  # renders circles for incidents based off of click on the map by user
   observeEvent(input$map_click, {
-    #if(!input$click_multi) 
     leafletProxy("map") %>% clearGroup(c("circles","centroids",incident_type))
     click <- input$map_click
     clat <- click$lat
@@ -48,16 +45,13 @@ shinyServer(function(input, output, session) {
     year_select <- as.numeric(input$year)
     month_select <- as.numeric(input$month)
     
-    
+    # determines the range of incidents that are included in the click (selects year and month and then uses radius size)
     incidence <- incidence[incidence$YEAR == year_select,]
     incidence <- incidence[incidence$MONTH == month_select,]
     inc_within_range <- incidence[distCosine(c(clong,clat),incidence[,c("LONGITUDE","LATITUDE")]) <= input$click_radius,]
     
     
-    
-    
-    ### need weighted avg here
-    
+    ### need weighted avg here to determine the danger
     inc_total <- nrow(inc_within_range)
     inc_per_day <- inc_total / 365
     total_index <- sum(inc_within_range$Severity)
@@ -96,8 +90,6 @@ shinyServer(function(input, output, session) {
       addCircles(lng = clong, lat = clat, group = 'centroids', radius = 1, weight = 2,
                  color = 'black',fillColor = 'black',fillOpacity = 1)
     
-    #incidence_within_range <- merge(incidence_within_range, color, by = c("INCIDENT_CLASSIFICATION_GROUP","INCIDENT_CLASSIFICATION_GROUP"), all.y = F)
-    
     leafletProxy('map', data = inc_within_range) %>%
       addCircles(~LONGITUDE,~LATITUDE, group =~INCIDENT_CLASSIFICATION_GROUP, stroke = F,
                  radius = 12, fillOpacity = 0.8,fillColor=~color)
@@ -120,24 +112,24 @@ shinyServer(function(input, output, session) {
   })
   
   
-  # Select the types of the incidence to be visualized
-  observeEvent(input$click_inceidence_type, {
+  # Select the types of the incidents to be visualized
+  observeEvent(input$click_incidence_type, {
     
     for(type in incident_type){
-      if(type %in% input$click_inceidence_type) leafletProxy("map") %>% showGroup(type)
+      if(type %in% input$click_incidence_type) leafletProxy("map") %>% showGroup(type)
       else{leafletProxy("map") %>% hideGroup(type)}
     }
     
   }, ignoreNULL = FALSE)
   
-  # Select all or none of the incidence to be visualize
+  # Select all or none of the incidents to be visualize
   observeEvent(input$click_all_incident_type, {
-    updateCheckboxGroupInput(session, "click_inceidence_type",
+    updateCheckboxGroupInput(session, "click_incidence_type",
                              choices = incident_type,
                              selected = incident_type)
   })
   observeEvent(input$click_none_incident_type, {
-    updateCheckboxGroupInput(session, "click_inceidence_type",
+    updateCheckboxGroupInput(session, "click_incidence_type",
                              choices = incident_type,
                              selected = NULL)
   })
@@ -223,6 +215,7 @@ shinyServer(function(input, output, session) {
              INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident1) %>%
       group_by(YEAR,MONTH) %>%
       summarise(Calls = sum(c1))) 
+  
   # make the tab1/plot1: monthly fire department calls by borough by year with selected types of incidents
   output$stat_output1 <- renderPlotly({
     g1 <- ggplot(data_stat1(),aes(x = MONTH,y = Calls,color = factor(YEAR)))+
@@ -243,6 +236,7 @@ shinyServer(function(input, output, session) {
              INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident2) %>%
       group_by(YEAR,MONTH,INCIDENT_BOROUGH) %>%
       summarise(Calls = sum(c1)))
+  
   # make the tab1/plot2: monthly fire department calls by borough from 2013-2018 with selected types of incidents
   output$stat_output2 <- renderPlotly({
     g2 <- data_stat2() %>%
@@ -265,6 +259,7 @@ shinyServer(function(input, output, session) {
              INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident3) %>%
       group_by(YEAR,MONTH) %>%
       summarise(Calls = sum(c1)))
+  
   # make the tab2/plot1: monthly fire department calls by zipcode by year with selected types of incidents
   output$stat_output3 <- renderPlotly({
     g3 <- ggplot(data_stat3(),aes(x = MONTH,y = Calls,color = factor(YEAR)))+
@@ -285,6 +280,7 @@ shinyServer(function(input, output, session) {
              INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident4) %>%
       group_by(ZIPCODE,YEAR,MONTH) %>%
       summarise(Calls = sum(c1)))
+  
   # make the tab2/plot2: monthly fire department calls of 3 zipcode from 2013-2018 with selected types of incidents
   output$stat_output4 <- renderPlotly({
     g4 <- data_stat4() %>%
@@ -363,6 +359,4 @@ shinyServer(function(input, output, session) {
       forecast(h = 24, level = c(90))
     paste("Note: The model is",g8$method, sep = " ")
   })
-  
-  
 })
