@@ -1,14 +1,3 @@
-library(shiny)
-library(leaflet)
-library(data.table)
-library(plotly)
-library(shinythemes)
-library(shinyWidgets)
-library(shinydashboard)
-
-
-
-
 shinyUI(
   div(id="canvas",
       

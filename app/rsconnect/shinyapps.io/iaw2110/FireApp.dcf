@@ -1,0 +1,12 @@
+name: FireApp
+title: FireApp
+username:
+account: iaw2110
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1864122
+bundleId: 2830637
+url: https://iaw2110.shinyapps.io/FireApp/
+when: 1582699344.52359
+asMultiple: FALSE
+asStatic: FALSE

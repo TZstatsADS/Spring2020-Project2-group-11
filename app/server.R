@@ -3,14 +3,6 @@ shinyServer(function(input, output, session) {
   
   ## Map Tab section
   
-  #output$map <- renderLeaflet({
-  #  leaflet() %>%
-  #   addProviderTiles("Hydda.Full", 
-  #                     options = providerTileOptions(noWrap = TRUE)) %>%
-  #    setView(-73.8767716,40.7379555,zoom = 13) %>%
-  #    addResetMapButton()
-  #})
-  
   output$map <- renderLeaflet({
     leaflet(data = firehouses, width="100%") %>% 
       addProviderTiles(providers$Hydda.Full) %>%
