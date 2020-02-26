@@ -294,13 +294,13 @@ shinyServer(function(input, output, session) {
     ggplotly(g4)
   })
   
-  
+  # creates a reactive dataframe that has the subsetting needed for the tab3/plot1
   data_stat5 <- reactive(
     clean_fire2_stat3 %>%
       filter(INCIDENT_BOROUGH %in% input$stat_borough3,
              INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident5)
   )
-  
+  # make the tab3/plot1: point plot,x = engines assigned, y = ladders assigned
   output$stat_output5 <- renderPlotly({
     g5 <- ggplot(data_stat5(),
                  aes(x = ENGINES_ASSIGNED_QUANTITY, y = LADDERS_ASSIGNED_QUANTITY,color = INCIDENT_CLASSIFICATION_GROUP))+
@@ -312,12 +312,14 @@ shinyServer(function(input, output, session) {
     ggplotly(g5)
   })
   
+  # creates a reactive dataframe that has the subsetting needed for the tab3/plot2
   data_stat6 <- reactive(
     clean_fire2_stat4 %>%
       filter(YEAR == input$stat_year1,MONTH == input$stat_month1,
              INCIDENT_CLASSIFICATION_GROUP %in% input$stat_incident6)
   )
   
+  # make the tab3/plot2: assignment of engines of different borough and incident types in one specific month
   output$stat_output6 <- renderPlotly({
     g6 <- ggplot(data_stat6(),aes(x = INCIDENT_BOROUGH, y = c, fill = ENGINES))+
       geom_bar(stat='identity',position='dodge')+ theme_light()+
@@ -329,6 +331,7 @@ shinyServer(function(input, output, session) {
     
   })
   
+   # creates a reactive dataframe that has the subsetting needed for the tab4
   data_stat7 <- reactive(
     clean_fire2_stat1 %>%
       filter(INCIDENT_BOROUGH == input$stat_borough4,
@@ -337,7 +340,7 @@ shinyServer(function(input, output, session) {
       summarise(Calls = sum(c1))
   )
   
-  
+  #  make the tab4 plot: prediction of one borough/NYC for some selected incidents types
   output$stat_output7 <- renderPlot({
     g7 <- data_stat7()$Calls %>%
       ts(start = c(2013,1),end = c(2018,12),frequency = 12) %>%
