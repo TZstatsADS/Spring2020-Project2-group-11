@@ -108,9 +108,7 @@ shinyServer(function(input, output, session) {
                yaxis=list(showgrid=F,zeroline=F,showline=F,autotick=T,ticks='',showticklabels=F))
       
     })
-    
   })
-  
   
   # Select the types of the incidents to be visualized
   observeEvent(input$click_incidence_type, {
