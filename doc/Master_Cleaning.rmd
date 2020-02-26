@@ -1,6 +1,6 @@
 ---
 title: "Master_Clean"
-author: "Daniel Schmidle / Ivan Wolansky"
+author: "Daniel Schmidle / Ivan Wolansky / Rui Wang"
 date: "February 16, 2020"
 output: html_document
 ---
