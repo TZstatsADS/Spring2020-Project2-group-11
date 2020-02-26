@@ -1,20 +1,10 @@
 ### A Note on Contributions
 
-Whenever we have team projects, there are always concerns on unequal contributions from members of a project team. In the ideal world, we are all here to put in our best efforts and learn together. Even in that ideal world, we have different skill sets and preparations, and we will still contribute differently to a project. 
+Project Emergency Response of FDNY
 
-Therefore, you are required to post a *contribution statement* in the root README.md of your GitHub repo. Please beware that your GitHub repo will become public and remain public after the due date of the projects. 
+Team members: Rui Wang, Daniel Schmidle, Huize Huang, Ivan Wolansky, Jiawei Liu
 
-Post your title, team members, project abstract and a contribution statement in the README.md file.  This is a common practice for research scientific journals. 
+Summary: In this project, we developed an app about all the emergency reports related to FDNY, constructing a map to clearly visualize the emergency locations. Our main target audience is the FDNY.This app can help them easily understand the overall situations in NYC, making rational allocation of resources. It will be meaningful if they deploy more firehouses within the area of higher emergency frequencies in the city. What's more, New York citizens are also encouraged to check our app when considering the safety factors of their
+future houses.
 
-Below is an example. If no contribution statement is provided, we will insert a default statement that goes "**All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement**. "
-
----
-Sample project README statement.
-
-Project xxx
-
-Team members: Avi Bond, Comma Deed, En Funn, Gem Hon
-
-Summary: In this project, we developed a new method and improved the classification accuracy for images of cats and dogs to 99.9%
-
-[Contribution Statement] AB, CD, EF and GH designed the study. AB and CD developed baseline classification model for evaluation. EF and GH explored feature engineering for improving the baseline model. AB, EF and GH discussed and designed the model evaluation protocol. CD carried out the computation for model evaluation. All team members contributed to the GitHub repository and prepared the presentation. All team members approve our work presented in our GitHub repository including this contribution statement.
+[Contribution Statement] All team members discussed and decided the theme for our app. Ivan did the initial transformation of longitude and latitude data, and then developed the heat map. Rui developed the ‘Alarm Classification’ model and realized interactive effects on the map, and also prepared for the presentation. Daniel explored all the data set and developed the ‘Analysis’ part. Huize explored all the data set and developed the ‘Personalized Stat’ part. Jiawei developed the layout of the whole app and wrote the ‘Info’ page. Rui, Huize and Jiawei integrated all the codes of our app. Rui made some improvements on the layout. Huize and Jiawei contributed to the Readme file. All team members contributed to the publish and deploy process of our web.
