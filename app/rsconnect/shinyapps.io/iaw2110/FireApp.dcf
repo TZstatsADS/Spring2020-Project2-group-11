@@ -5,8 +5,8 @@ account: iaw2110
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1864122
-bundleId: 2832087
+bundleId: 2832290
 url: https://iaw2110.shinyapps.io/FireApp/
-when: 1582741814.82187
+when: 1582746935.07054
 asMultiple: FALSE
 asStatic: FALSE
