@@ -1,4 +1,3 @@
-
 shinyServer(function(input, output, session) {
   
   ## Map Tab section
