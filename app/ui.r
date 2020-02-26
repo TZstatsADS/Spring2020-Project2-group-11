@@ -264,27 +264,29 @@ shinyUI(
                                       src = "../bg3.jpg"
                                     ),
                                     
-                                    style = "opacity: 1.0;color:white;",
+                                    style = "opacity: 1.0; color:white;",
+                                    
                                     h1("An Overview of FDNY"),
                                     br(),
-                                    h4("The Fire Department of the City of New York (FDNY) is the largest Fire Department in the United States and universally is recognized as the world's busiest and most highly"),
-                                    h4("skilled emergency response agency. The Department's main goal is to provide fire protection, emergency medical care, and other critical public safety services to residents"),
-                                    h4("and visitors in the five boroughs. The Department also works to continually educate the public in fire, life safety and disaster preparedness, along with enforcing public"),
-                                    h4("safety codes."),
+                                    h4(style="line-height:1.7;background-color:rgba(125,113,113,0.7);border-radius:25px",
+                                       "The Fire Department of the City of New York (FDNY) is the largest Fire Department in the United States and is universally recognized as the world's busiest and most skilled emergency response agency. 
+                                       The Department's main goal is to provide fire protection, emergency medical care, and other critical public safety services to residents and visitors in the five boroughs. 
+                                       The FDNY also works to continually educate the public on fire safety and disaster preparedness, along with enforcing public safety codes."),
                                     br(),
                                     h1("Our Motivation"),
-                                    h4("Our Shiny App is about all the emergency reports related to FDNY, constructing a map to clearly visualize the emergency locations. Our main target audience is the FDNY."), 
-                                    h4("This app can help them easily understand the overall situations in NYC, making rational allocation of resources. It will be meaningful if they deploy more firehouses within"), 
-                                    h4("the area of higher emergency frequencies in the city. What's more, New York citizens are also encouraged to check our app when considering the safety factors of their"),
-                                    h4("future houses."),
+                                    h4(style="line-height:1.7;background-color:rgba(125,113,113,0.7);border-radius:25px",
+                                       "Our Shiny App is about all the emergency reports related to FDNY from 2013-2019. We constructed a map to clearly visualize the emergency locations. 
+                                       Our main target audience is the FDNY. This app can help them easily understand the overall situations in NYC and help them to make smart decisions in 
+                                       their allocation of resources. For instance, the construction of additional firehouses within areas of higher emergency frequencies in the city is a 
+                                       good example of this. What's more, New York citizens are also encouraged to check our app when considering the safety factors of future places of residence."),
                                     br(),
                                     h1("Guidelines"),
-                                    h4("The 'Map' panel shows all the alarms happened in NYC in a whole year. By changing the checkboxes or moving the sliders, and then clicking on a random point in the map,"), 
-                                    h4("you will see the heatmap and piechart under different situations. Different types of emergencies will need different actions and engines, so our map can provide an effective"), 
-                                    h4("reference while allocating resources."),
-                                    h4("The 'Analysis' panel and 'Personalized Analysis' panel show the outcomes of some exploratory data analysis. You can check the plots and conclusions according to different"), 
-                                    h4("situations. The 'Analysis' part provides informative and critical conclusions, and the 'Personalized Analysis' part provides various of interactive plots. What's more, you can"), 
-                                    h4("check the prediction results in the 'Personalized Analysis' part, which is not accurate but instructive."),
+                                    h4(style="line-height:1.7;background-color:rgba(125,113,113,0.7);border-radius:25px",
+                                       "The 'Map' panel shows all the alarm calls in NYC. By changing the checkboxes or moving the sliders and then clicking on a random point on the map, you will see the heatmap and piechart under different situations. It is important to note that the heatmap
+                                       displays the information based off of which of the incidents is checked, regardless of the year, while the pie chart also delves into what year and month incidents occured.
+                                       Different types of emergencies will need different actions and engines, so our map can provide an effective reference while allocating resources. The 'Analysis' panel and 'Personalized Analysis' panel show the outcomes of some exploratory data analysis. 
+                                       You can check the plots and conclusions according to different situations. The 'Analysis' part provides informative and critical conclusions, and the 'Personalized Analysis' part provides various of interactive plots. What's more, 
+                                       you can check the prediction results in the 'Personalized Analysis' part, which is not accurate but instructive."),
                                     br(),
                                     h5(em(a("Github link",href="https://github.com/TZstatsADS/Spring2020-Project2-group-11"))),
                                     h5(em(a("Data from NYC Open Data",href="https://data.cityofnewyork.us/Public-Safety/Fire-Incident-Dispatch-Data/8m42-w767")))
