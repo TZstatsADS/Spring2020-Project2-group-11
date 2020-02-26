@@ -20,8 +20,8 @@ The **learning goals** for this project is:
 ## Project Title Lorem ipsum dolor sit amet
 Term: Fall 2019
 
-+ Team #
-+ **Projec title**: + Team members
++ Team # 11
++ **Emergency Response of FDNY**:
 	+ Rui Wang
 	+ Daniel Schmidle
 	+ Huize Huang
