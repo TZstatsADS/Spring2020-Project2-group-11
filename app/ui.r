@@ -285,13 +285,9 @@ shinyUI(
                                        "The 'Map' panel shows all the alarm calls in NYC. By changing the checkboxes or moving the sliders and then clicking on a random point on the map, you will see the heatmap and piechart under different situations. It is important to note that the heatmap
                                        displays the information based off of which of the incidents is checked, regardless of the year, while the pie chart also delves into what year and month incidents occured.
                                        Different types of emergencies will need different actions and engines, so our map can provide an effective reference while allocating resources. The 'Analysis' panel and 'Personalized Stat' panel show the outcomes of some exploratory data analysis. 
-<<<<<<< HEAD
                                        You can check the plots and conclusions according to different situations. The 'Analysis' panel provides informative and critical conclusions, and the 'Personalized Stat' panel provides various of interactive plots. What's more, 
                                        you can check the prediction results in the 'Personalized Stat' panel, which is not necessarily accurate but could potentially be instructive."),
-=======
-                                       You can check the plots and conclusions according to different situations. The 'Analysis' part provides informative and critical conclusions, and the 'Personalized Stat' part provides various of interactive plots. What's more, 
-                                       you can check the prediction results in the 'Personalized Stat' part, which is not accurate but instructive."),
->>>>>>> bf43db08c7ad6034b216559f91fe70ce921358bf
+
                                     br(),
                                     h5(em(a("Github link",href="https://github.com/TZstatsADS/Spring2020-Project2-group-11"))),
                                     h5(em(a("Data from NYC Open Data",href="https://data.cityofnewyork.us/Public-Safety/Fire-Incident-Dispatch-Data/8m42-w767")))
